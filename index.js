@@ -31,6 +31,42 @@ app.get("/jokes/:id", (req,res) =>{
     
     
 })
+app.post("/jokes", (req,res )=>{
+
+    const schema = Joi.object({
+        jokeText: Joi.string().min(3).required(),
+        jokeType: Joi.string().min(3).required(),
+    })
+    const result = schema.validate(req.body);
+   
+    
+    if (result.error) return res.status(400).send(result.error.details)
+    const joke = {
+        id : jokes.length + 1,
+        jokeText : req.body.jokeText,
+        jokeType : req.body.jokeType
+    }
+   
+    jokes.push(joke)
+    res.send(joke)
+})
+
+app.put("/jokes/:id", (req,res) =>{
+
+})
+
+
+app.delete("/jokes/:id", (req,res) =>{
+  
+})
+
+
+
+
+
+
+
+
 app.listen(PORT, () => {
     console.log(`Server running on port number ${PORT}`);
     
