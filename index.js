@@ -41,6 +41,7 @@ app.post("/jokes", (req,res )=>{
    
     
     if (result.error) return res.status(400).send(result.error.details)
+
     const joke = {
         id : jokes.length + 1,
         jokeText : req.body.jokeText,
@@ -49,21 +50,45 @@ app.post("/jokes", (req,res )=>{
    
     jokes.push(joke)
     res.send(joke)
+   
 })
 
 app.put("/jokes/:id", (req,res) =>{
+  const schema = Joi.object({
+    jokeText : Joi.string().min(3).required(),
+    jokeType : Joi.string().min(3).required()
+  }) 
+  const result = schema.validate(req.body)
+  if(result.error) return res.status(404).send(result.error.details)
 
+  const joke = jokes.find((j) => j.id === parseInt(req.params.id)) 
+
+  if (!joke) return res.status(404).send("The Joke with the given ID was not found ")
+
+  joke.jokeText = req.body.jokeText;
+  joke.jokeType = req.body.jokeType;
+  
+  res.send(joke)
+  res.render("index.ejs",{
+    joke: joke.jokeText,
+    jokeType: joke.jokeType,
 })
 
+})
 
 app.delete("/jokes/:id", (req,res) =>{
-  
+  const joke = jokes.find((j) => j.id === parseInt(req.params.id))
+  if (!joke) return res.status(404).send("The joke with the given ID was not found")
+
+    const index = jokes.indexOf(joke)
+    jokes.splice(index,1)
+    res.send(joke)
+
+    res.render("index.ejs",{
+      joke: joke.jokeText,
+      jokeType: joke.jokeType,
+  })
 })
-
-
-
-
-
 
 
 
@@ -72,6 +97,13 @@ app.listen(PORT, () => {
     
 })
 
+function validateJokes(joke){
+  const schema = Joi.object({
+    jokeText : Joi.string().min(3).required(),
+    jokeType : Joi.string().min(3).required()
+  }) 
+  return schema.validate(joke)
+}
 var jokes = [
     {
       id: 1,
